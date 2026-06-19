@@ -10,6 +10,9 @@
 * **Status:** Proof of Concept (PoC).
 * **Purpose:** Validation of physical syntax via computational simulation in Rust.
 * **License:** MIT.
+* **Author:** Froylan Béla Garduño Horváth
+
+[![DOI](https://zenodo.org/badge/1271024539.svg)](https://doi.org/10.5281/zenodo.20715691)
 
 ## Base Formula
 
