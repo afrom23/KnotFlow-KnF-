@@ -12,7 +12,7 @@
 * **License:** MIT.
 * **Author:** Froylan Béla Garduño Horváth
 
-[![DOI](https://zenodo.org/badge/1271024539.svg)](https://doi.org/10.5281/zenodo.20715691)
+<a href="https://doi.org/10.5281/zenodo.20755402"><img src="https://zenodo.org/badge/1273896155.svg" alt="DOI"></a>
 
 ## Base Formula
 
