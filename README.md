@@ -1,170 +1,116 @@
 # KnotFlow (KnF)
 
+**Status:** Proof of Concept  
+**License:** MIT  
+**Author:** Froylan Béla Garduño Horváth  
+**DOI:** [10.5281/zenodo.20755402](https://doi.org/10.5281/zenodo.20755402)
 
-## Project Status
+## What it is
 
-* **Status:** Proof of Concept (PoC).
-* **Purpose:** Validation of physical syntax via computational simulation in Rust.
-* **License:** MIT.
-* **Author:** Froylan Béla Garduño Horváth
+KnotFlow is a 2-bit computing architecture that processes data streams 
+through the interaction of two elements:
 
-<a href="https://doi.org/10.5281/zenodo.20755402"><img src="https://zenodo.org/badge/1273896155.svg" alt="DOI"></a>
+- **Gödelian Bit (`g_bit`):** the node's internal state. A precise, 
+  repeatable axiom — not a truth, but a stable reference point. 
+  Analogous to a scale's tare: deliberately fixed, internally consistent.
+- **Stochastic Bit (`e_bit`):** the input stream. The approximation of 
+  reality that contrasts against the tare.
 
+The system does not seek truth. It measures the sustained discrepancy 
+between its internal axiom and external evidence, and recalibrates only 
+when that discrepancy is large enough to force it.
 
-## Abstract
+## Core mechanic
 
-KnotFlow (KnF) is a phase-state computing architecture designed to process data streams via a 2-bit core. The system operates as a continuous-flow Lambda Machine, where functional evaluation occurs in a distributed manner. The architecture is axiomatically closed: functionality emerges exclusively from the interaction between a **Gödelian Bit** (internal state) and a **Stochastic Bit** (input stream).
+Stress (`τ`) accumulates when `g_bit ≠ e_bit`. When stress reaches the 
+Poincaré limit (τ = 3), the node broadcasts and recalibrates its tare 
+to the value that sustained the pressure. This is not learning in the 
+conventional sense — it is **forced axiom update under evidence**.
 
-## Architecture
+When `g_bit == e_bit`, stress dissipates gradually. The node tends 
+toward silence.
+Gear 1 (τ=1): AND  — immediate coherence check
 
-### 1. Technical Specifications
+Gear 2 (τ=2): XOR  — isolates the discrepancy
 
-The system minimizes the action $S$ to achieve syntactic stability:
-
-$$S(\phi, \aleph_\tau) = \int_{\Omega} (\nabla\phi \cdot \nabla\phi - \lambda H(\phi, \aleph_\tau)) d\Omega$$
-
--   **$\nabla\phi \cdot \nabla\phi$:** Phase gradient (XOR discrepancy).
-    
--   **$H(\phi, \aleph_\tau)$:** Stress transduction operator ($\tau$).
-    
--   **$\delta S = 0$:** Convergence criterion (resonance).
-    
-
-### 2. 2-Bit Core and Gear Function ($\mathcal{G}$)
-
-The logical transfer is dictated by the accumulated stress $\tau$, normalized by the input queue depth $Q$: $\tau = \min(\text{len}(Q), 3)$.
-
-**Function $\mathcal{G}(\tau)$:**
-
-| Pressure ($\tau$) | Logical Operator | Gear State |
-| --- | --- | --- |
-| $\tau < 1$ | $\phi \land \psi$ | Gear 1: Resonance |
-| $1 \le \tau < 2$ | $\phi \oplus \psi$ | Gear 2: Analysis |
-| $\tau \ge 2$ | $\neg(\phi \oplus \psi)$ | Gear 3: Incompleteness |
-    
+Gear 3 (τ=3): XNOR — incompleteness signal, triggers recalibration
 
 ## Implementation
 
-Rust
-
-```
+```rust
 struct Nodo {
-    g_bit: u8,
-    tau: u8,
+    g_bit: u8, // Tare: precise internal axiom. Range {0,1}.
+    tau: u8,   // Accumulated stress. Range [0,3].
 }
 
 impl Nodo {
-    fn procesar_flujo(&mut self, e_bit: u8, queue_depth: usize) -> Option<u8> {
-        let esfuerzo = self.g_bit ^ e_bit;
-
-        if esfuerzo == 0 {
-            // Resonance: Stress dissipation
-            if self.tau > 0 { self.tau -= 1; }
-            None
-        } else {
-            // Automatic gear adjustment based on queue pressure
-            self.tau = (queue_depth as u8).min(3);
-            
-            let resultado = match self.tau {
-                1 => self.g_bit & e_bit,        // Gear 1: AND
-                2 => self.g_bit ^ e_bit,        // Gear 2: XOR
-                _ => !(self.g_bit ^ e_bit),     // Gear 3: XNOR
-            };
-
-            // Network broadcast upon reaching the Poincaré limit
-            if self.tau >= 3 {
-                self.tau = 0;
-                return Some((resultado & 1) ^ 1);
-            }
-            None
-        }
+    fn new(g_bit: u8) -> Self {
+        Self { g_bit: g_bit & 1, tau: 0 }
     }
-}
 
-```
-
-    
-
-_Note: This system is axiomatically closed. Any external implementation is classified as an extension, preserving the integrity of the core protocol._
-
-## Contribution and Legal
-
-This project is provided "as is" under the MIT License. As a PoC, the software is provided without warranty. Contributions are welcome to improve the robustness of the transduction process.
-
-
-
-
-
-
-# Resumen
-
-KnotFlow (KnF) es una arquitectura de computación basada en estados de fase diseñada para procesar flujos de datos mediante un núcleo de 2 bits. El sistema opera como una Máquina Lambda de flujo continuo, donde la evaluación de funciones ocurre de forma distribuida. La arquitectura es axiomáticamente cerrada: la funcionalidad emerge exclusivamente de la interacción entre un **Bit Gödeliano** (estado interno) y un **Bit Estocástico** (flujo de entrada).
-
-## Arquitectura
-
-### 1. Especificaciones Técnicas
-
-El sistema minimiza la acción $S$ para alcanzar la estabilidad sintáctica:
-
-$$S(\phi, \aleph_\tau) = \int_{\Omega} (\nabla\phi \cdot \nabla\phi - \lambda H(\phi, \aleph_\tau)) d\Omega$$
-
-Donde:
-
--   $\nabla\phi \cdot \nabla\phi$: Gradiente de fase (discrepancia XOR).
-    
--   $H(\phi, \aleph_\tau)$: Operador de transducción de tensiones ($\tau$).
-    
--   $\delta S = 0$: Criterio de convergencia (resonancia).
-    
-
-### 2. Núcleo de 2 bits y función de marcha ($\mathcal{G}$)
-
-La transferencia lógica está dictada por el esfuerzo acumulado $\tau$, normalizado por la profundidad de la cola de entrada $Q$: $\tau = \min(\text{len}(Q), 3)$.
-
-**Función $\mathcal{G}(\tau)$:**
-
-| Presión ($\tau$) | Operador Lógico | Estado de Marcha |
-| --- | --- | --- |
-| $\tau < 1$ | $\phi \land \psi$ | Marcha 1: Resonancia |
-| $1 \le \tau < 2$ | $\phi \oplus \psi$ | Marcha 2: Análisis |
-| $\tau \ge 2$ | $\neg(\phi \oplus \psi)$ | Marcha 3: Incompletitud |
-
-## Implementación
-
-Rust
-
-```
-struct Nodo {
-    g_bit: u8,
-    tau: u8,
-}
-
-impl Nodo {
-    fn procesar_flujo(&mut self, e_bit: u8, queue_depth: usize) -> Option<u8> {
+    /// Returns Some(result) only on broadcast (tare recalibration).
+    /// Returns None during resonance or stress accumulation.
+    fn procesar_flujo(&mut self, e_bit: u8) -> Option<u8> {
+        let e_bit = e_bit & 1;
         let esfuerzo = self.g_bit ^ e_bit;
 
         if esfuerzo == 0 {
-            if self.tau > 0 { self.tau -= 1; }
+            self.tau = self.tau.saturating_sub(1);
             None
         } else {
-            self.tau = (queue_depth as u8).min(3);
-            
+            self.tau = (self.tau + 1).min(3);
+            let xor_val = self.g_bit ^ e_bit;
+
             let resultado = match self.tau {
                 1 => self.g_bit & e_bit,
-                2 => self.g_bit ^ e_bit,
-                _ => !(self.g_bit ^ e_bit),
+                2 => xor_val,
+                _ => (xor_val ^ 1) & 1,
             };
 
             if self.tau >= 3 {
+                self.g_bit = e_bit; // tare adopts the value that forced recalibration
                 self.tau = 0;
-                return Some((resultado & 1) ^ 1);
+                Some(resultado)
+            } else {
+                None
             }
-            None
         }
     }
 }
-
 ```
-## Contribución y Aspectos Legales
 
-Este proyecto se entrega "tal cual" (as is) bajo licencia MIT. Al tratarse de una Prueba de Concepto (PoC), el software se proporciona sin garantía de ningún tipo. Las contribuciones son bienvenidas para mejorar la robustez del proceso de transducción.
+## Formal properties
+
+- Recalibration is never null: broadcast only occurs when `g_bit ≠ e_bit`,
+  so `g_bit` always changes.
+- `g_bit` and `e_bit` are always in `{0,1}` by construction.
+- `tau` never underflows.
+- Pure alternating input (`0,1,0,1...`) never triggers broadcast —
+  unsustained discrepancy does not force learning.
+
+## Design boundaries
+
+The core is intentionally minimal. The following are **not bugs** — 
+they are deferred to extension layers:
+
+- **Mesh topology:** how nodes connect and forward broadcasts.
+- **Overflow handling:** what happens when a node saturates repeatedly
+  (jail mechanism, planned for the mesh layer).
+- **Formal verification:** behavioral analysis via a 
+  dependently-typed layer (Agda, planned).
+- **Automation of gear selection:** currently manual, 
+  by design, for experimental observation.
+
+Contributions that modify core semantics should open a discussion first.
+Contributions to extension layers are welcome directly.
+
+## Architecture (formal)
+
+The system minimizes action S to achieve syntactic stability:
+
+$$S(\phi, \aleph_\tau) = 
+\int_{\Omega} (\nabla\phi \cdot \nabla\phi - \lambda H(\phi, \aleph_\tau)) d\Omega$$
+
+- $\nabla\phi \cdot \nabla\phi$: phase gradient (XOR discrepancy)
+- $H(\phi, \aleph_\tau)$: stress transduction operator
+- $\delta S = 0$: convergence criterion (resonance)
