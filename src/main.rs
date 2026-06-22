@@ -1,32 +1,41 @@
+```rust
 struct Nodo {
-    g_bit: u8,
-    tau: u8,
+    g_bit: u8, // Tare: precise internal axiom. Range {0,1}.
+    tau: u8,   // Accumulated stress. Range [0,3].
 }
 
 impl Nodo {
-    fn procesar_flujo(&mut self, e_bit: u8, queue_depth: usize) -> Option<u8> {
+    fn new(g_bit: u8) -> Self {
+        Self { g_bit: g_bit & 1, tau: 0 }
+    }
+
+    /// Returns Some(result) only on broadcast (tare recalibration).
+    /// Returns None during resonance or stress accumulation.
+    fn procesar_flujo(&mut self, e_bit: u8) -> Option<u8> {
+        let e_bit = e_bit & 1;
         let esfuerzo = self.g_bit ^ e_bit;
 
         if esfuerzo == 0 {
-            // Resonance: Stress dissipation
-            if self.tau > 0 { self.tau -= 1; }
+            self.tau = self.tau.saturating_sub(1);
             None
         } else {
-            // Automatic gear adjustment based on queue pressure
-            self.tau = (queue_depth as u8).min(3);
-            
+            self.tau = (self.tau + 1).min(3);
+            let xor_val = self.g_bit ^ e_bit;
+
             let resultado = match self.tau {
-                1 => self.g_bit & e_bit,        // Gear 1: AND
-                2 => self.g_bit ^ e_bit,        // Gear 2: XOR
-                _ => !(self.g_bit ^ e_bit),     // Gear 3: XNOR
+                1 => self.g_bit & e_bit,
+                2 => xor_val,
+                _ => (xor_val ^ 1) & 1,
             };
 
-            // Network broadcast upon reaching the Poincaré limit
             if self.tau >= 3 {
+                self.g_bit = e_bit; // tare adopts the value that forced recalibration
                 self.tau = 0;
-                return Some((resultado & 1) ^ 1);
+                Some(resultado)
+            } else {
+                None
             }
-            None
         }
     }
 }
+```
