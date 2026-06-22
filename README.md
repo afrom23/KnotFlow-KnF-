@@ -1,9 +1,5 @@
-
----
-
 # KnotFlow (KnF)
 
-**KnotFlow** is a functional-procedural architecture designed for the observational validation of data flows. Based on the formalism of a **Transduction Calibrator**, it allows for the identification of coherence states (physical truth) in complex systems through the minimization of the action functional $\mathcal{S}(\phi, \aleph_{\tau})$.
 
 ## Project Status
 
@@ -14,82 +10,161 @@
 
 <a href="https://doi.org/10.5281/zenodo.20755402"><img src="https://zenodo.org/badge/1273896155.svg" alt="DOI"></a>
 
-## Base Formula
 
-The system validates stability through the relation:
+## Abstract
 
+KnotFlow (KnF) is a phase-state computing architecture designed to process data streams via a 2-bit core. The system operates as a continuous-flow Lambda Machine, where functional evaluation occurs in a distributed manner. The architecture is axiomatically closed: functionality emerges exclusively from the interaction between a **Gödelian Bit** (internal state) and a **Stochastic Bit** (input stream).
 
-$$\mathcal{S}(\phi, \aleph_{\tau}) = \int_{\Omega} \left( \nabla \phi \cdot \nabla \phi - \lambda \mathcal{H}(\phi, \aleph_{\tau}) \right) d\Omega$$
+## Architecture
 
-## Architectural Structure
+### 1. Technical Specifications
 
-1. **Ingestion ($\phi$):** Capture of perturbations in the space-energy fabric.
-2. **Transduction ($\mathcal{H}$):** Processing of the accumulated history ($\aleph_{\tau}$).
-3. **Validation ($\delta \mathcal{S} = 0$):** Convergence criterion for determining syntactic stability.
+The system minimizes the action $S$ to achieve syntactic stability:
 
-## Technical Roadmap
+$$S(\phi, \aleph_\tau) = \int_{\Omega} (\nabla\phi \cdot \nabla\phi - \lambda H(\phi, \aleph_\tau)) d\Omega$$
 
-* [ ] **PoC:** Basic implementation in Rust (`main.rs`).
-* [ ] **Nix:** `flake.nix` configuration for scientific reproducibility.
-* [ ] **Formalization:** Migration of logical cores to Agda for theorem verification.
+-   **$\nabla\phi \cdot \nabla\phi$:** Phase gradient (XOR discrepancy).
+    
+-   **$H(\phi, \aleph_\tau)$:** Stress transduction operator ($\tau$).
+    
+-   **$\delta S = 0$:** Convergence criterion (resonance).
+    
+
+### 2. 2-Bit Core and Gear Function ($\mathcal{G}$)
+
+The logical transfer is dictated by the accumulated stress $\tau$, normalized by the input queue depth $Q$: $\tau = \min(\text{len}(Q), 3)$.
+
+**Function $\mathcal{G}(\tau)$:**
+
+| Pressure ($\tau$) | Logical Operator | Gear State |
+| --- | --- | --- |
+| $\tau < 1$ | $\phi \land \psi$ | Gear 1: Resonance |
+| $1 \le \tau < 2$ | $\phi \oplus \psi$ | Gear 2: Analysis |
+| $\tau \ge 2$ | $\neg(\phi \oplus \psi)$ | Gear 3: Incompleteness |
+    
+
+## Implementation
+
+Rust
+
+```
+struct Nodo {
+    g_bit: u8,
+    tau: u8,
+}
+
+impl Nodo {
+    fn procesar_flujo(&mut self, e_bit: u8, queue_depth: usize) -> Option<u8> {
+        let esfuerzo = self.g_bit ^ e_bit;
+
+        if esfuerzo == 0 {
+            // Resonance: Stress dissipation
+            if self.tau > 0 { self.tau -= 1; }
+            None
+        } else {
+            // Automatic gear adjustment based on queue pressure
+            self.tau = (queue_depth as u8).min(3);
+            
+            let resultado = match self.tau {
+                1 => self.g_bit & e_bit,        // Gear 1: AND
+                2 => self.g_bit ^ e_bit,        // Gear 2: XOR
+                _ => !(self.g_bit ^ e_bit),     // Gear 3: XNOR
+            };
+
+            // Network broadcast upon reaching the Poincaré limit
+            if self.tau >= 3 {
+                self.tau = 0;
+                return Some((resultado & 1) ^ 1);
+            }
+            None
+        }
+    }
+}
+
+```
+
+    
+
+_Note: This system is axiomatically closed. Any external implementation is classified as an extension, preserving the integrity of the core protocol._
 
 ## Contribution and Legal
 
 This project is provided "as is" under the MIT License. As a PoC, the software is provided without warranty. Contributions are welcome to improve the robustness of the transduction process.
 
 
----
 
-# Hacia una Sintaxis de Validación Observacional: El Calibrador de Flujos $\aleph_{\tau}$
 
-## Introducción
 
-La realidad, lejos de ser un dogma estático, se manifiesta como un flujo constante de información. Este documento presenta la **Sintaxis de Validación Observacional**, un protocolo diseñado para traducir la complejidad del espacio-energía en conocimiento coherente. Lejos de imponer una verdad absoluta, este modelo propone un "lente" operativo: si la realidad es un tejido, nosotros somos los observadores encargados de medir la tensión de sus nudos y determinar si la información que contienen es estable o constituye una falacia lógica.
 
----
+# Resumen
 
-## I. El Formalismo del Protocolo de Observación $\aleph_{\tau}$
+KnotFlow (KnF) es una arquitectura de computación basada en estados de fase diseñada para procesar flujos de datos mediante un núcleo de 2 bits. El sistema opera como una Máquina Lambda de flujo continuo, donde la evaluación de funciones ocurre de forma distribuida. La arquitectura es axiomáticamente cerrada: la funcionalidad emerge exclusivamente de la interacción entre un **Bit Gödeliano** (estado interno) y un **Bit Estocástico** (flujo de entrada).
 
-El corazón del modelo es la **Fórmula Base**, un funcional de acción que evalúa la estabilidad topológica de cualquier configuración observada dentro de una variedad $(\Omega)$:
+## Arquitectura
 
-$$\mathcal{S}(\phi, \aleph_{\tau}) = \int_{\Omega} \left( \nabla \phi \cdot \nabla \phi - \lambda \mathcal{H}(\phi, \aleph_{\tau}) \right) d\Omega$$
+### 1. Especificaciones Técnicas
 
-* **Cinética Espacial ($\nabla \phi \cdot \nabla \phi$):** Representa la "novedad" o perturbación instantánea. Sin un historial que la valide, actúa como ruido.
-* **Potencial de Historial ($\lambda \mathcal{H}$):** El operador de memoria que confiere "peso" o sustancia al nudo observado.
-* **Principio de Mínima Acción ($\delta \mathcal{S} = 0$):** La condición de verdad física donde la tensión desaparece.
+El sistema minimiza la acción $S$ para alcanzar la estabilidad sintáctica:
 
----
+$$S(\phi, \aleph_\tau) = \int_{\Omega} (\nabla\phi \cdot \nabla\phi - \lambda H(\phi, \aleph_\tau)) d\Omega$$
 
-## II. El Calibrador como Transductor de Flujos
+Donde:
 
-El sistema opera como un **transductor de estados**, donde el observador no es pasivo, sino un elemento que completa el circuito de validación mediante el operador $\mathcal{H}$.
+-   $\nabla\phi \cdot \nabla\phi$: Gradiente de fase (discrepancia XOR).
+    
+-   $H(\phi, \aleph_\tau)$: Operador de transducción de tensiones ($\tau$).
+    
+-   $\delta S = 0$: Criterio de convergencia (resonancia).
+    
 
-### Pilares Teóricos Integrados
+### 2. Núcleo de 2 bits y función de marcha ($\mathcal{G}$)
 
-1. **Hestenes, D. (1986):** Fundamentos de *Álgebra Geométrica* para la manipulación de rotores y cambios de fase en el campo $\phi$.
-2. **Church, A. (1941):** Teoría de la *Conversión Lambda* para la reducción de formas y detección de paradojas/bucles infinitos.
-3. **Shannon, C. E. (1948):** Teoría de la información para la distinción entre señal útil y ruido sintáctico.
-4. **Maturana, H., & Varela, F. (1972):** Conceptos de autopoiesis para sistemas que validan su existencia a través del flujo.
+La transferencia lógica está dictada por el esfuerzo acumulado $\tau$, normalizado por la profundidad de la cola de entrada $Q$: $\tau = \min(\text{len}(Q), 3)$.
 
----
+**Función $\mathcal{G}(\tau)$:**
 
-## III. Referencias Complementarias Sugeridas
+| Presión ($\tau$) | Operador Lógico | Estado de Marcha |
+| --- | --- | --- |
+| $\tau < 1$ | $\phi \land \psi$ | Marcha 1: Resonancia |
+| $1 \le \tau < 2$ | $\phi \oplus \psi$ | Marcha 2: Análisis |
+| $\tau \ge 2$ | $\neg(\phi \oplus \psi)$ | Marcha 3: Incompletitud |
 
-Para profundizar en la arquitectura lógica y física del Calibrador, se integran las siguientes fuentes:
+## Implementación
 
-* **Gödel, K. (1931).** *Sobre sentencias formalmente indecidibles*. (Fundamental para entender los límites de la sintaxis y por qué la autorreferencia vacía induce "fallas" en el sistema).
-* **Wheeler, J. A. (1990).** *Information, Physics, Quantum: The Search for Links*. (Soporta la premisa del universo como "It from bit", donde la información es el componente básico de la realidad).
-* **Prigogine, I. (1984).** *Order out of Chaos*. (Explica cómo los sistemas disipativos, como tu "transductor", encuentran orden a través del flujo y el intercambio de energía).
-* **Penrose, R. (1989).** *The Emperor's New Mind*. (Proporciona un marco sobre por qué ciertos procesos físicos no son algorítmicos, esencial para diferenciar "intuición de observador" de "cálculo automático").
-* **Wheeler, J. A., & Feynman, R. P. (1945).** *Interaction with the Absorber*. (Brinda una base física sobre cómo el historial/futuro ("absorbente") influye en la acción presente, conectando con tu término $\lambda \mathcal{H}$).
+Rust
 
----
+```
+struct Nodo {
+    g_bit: u8,
+    tau: u8,
+}
 
-## IV. Conclusión: El Observador como Motor de Verdad
+impl Nodo {
+    fn procesar_flujo(&mut self, e_bit: u8, queue_depth: usize) -> Option<u8> {
+        let esfuerzo = self.g_bit ^ e_bit;
 
-La **Sintaxis de Validación Observacional** redefine la verdad: no es un dato a encontrar, sino el residuo de un proceso de eliminación. La realidad es lo que persiste después de que la sintaxis ha depurado todo aquello que carece de coherencia histórica o estabilidad topológica.
+        if esfuerzo == 0 {
+            if self.tau > 0 { self.tau -= 1; }
+            None
+        } else {
+            self.tau = (queue_depth as u8).min(3);
+            
+            let resultado = match self.tau {
+                1 => self.g_bit & e_bit,
+                2 => self.g_bit ^ e_bit,
+                _ => !(self.g_bit ^ e_bit),
+            };
 
----
+            if self.tau >= 3 {
+                self.tau = 0;
+                return Some((resultado & 1) ^ 1);
+            }
+            None
+        }
+    }
+}
+
+```
 ## Contribución y Aspectos Legales
 
 Este proyecto se entrega "tal cual" (as is) bajo licencia MIT. Al tratarse de una Prueba de Concepto (PoC), el software se proporciona sin garantía de ningún tipo. Las contribuciones son bienvenidas para mejorar la robustez del proceso de transducción.
