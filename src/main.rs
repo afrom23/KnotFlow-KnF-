@@ -1,43 +1,32 @@
-#[derive(Debug)]
-struct FieldPoint {
-    perturbation: f64, // Representa ∇φ
+struct Nodo {
+    g_bit: u8,
+    tau: u8,
 }
 
-struct Historian {
-    memory_weight: f64, // Representa λ
-    accumulated_data: f64, // Representa ℵτ
-}
+impl Nodo {
+    fn procesar_flujo(&mut self, e_bit: u8, queue_depth: usize) -> Option<u8> {
+        let esfuerzo = self.g_bit ^ e_bit;
 
-impl Historian {
-    // Función de reducción (operador H)
-    fn evaluate_history(&self, phi: &FieldPoint) -> f64 {
-        // H(φ, ℵτ) = φ * ℵτ (ejemplo simple de reducción)
-        phi.perturbation * self.accumulated_data
-    }
-}
+        if esfuerzo == 0 {
+            // Resonance: Stress dissipation
+            if self.tau > 0 { self.tau -= 1; }
+            None
+        } else {
+            // Automatic gear adjustment based on queue pressure
+            self.tau = (queue_depth as u8).min(3);
+            
+            let resultado = match self.tau {
+                1 => self.g_bit & e_bit,        // Gear 1: AND
+                2 => self.g_bit ^ e_bit,        // Gear 2: XOR
+                _ => !(self.g_bit ^ e_bit),     // Gear 3: XNOR
+            };
 
-fn calculate_action(phi: &FieldPoint, hist: &Historian) -> f64 {
-    let kinetic = phi.perturbation * phi.perturbation; // ∇φ · ∇φ
-    let potential = hist.memory_weight * hist.evaluate_history(phi); // λH
-    
-    kinetic - potential // S = ∫(∇φ² - λH)
-}
-
-fn main() {
-    // Definimos el sistema
-    let history = Historian { memory_weight: 0.5, accumulated_data: 2.0 };
-    
-    // Probamos con una perturbación (novedad)
-    let observation = FieldPoint { perturbation: 1.0 };
-    
-    let action = calculate_action(&observation, &history);
-    
-    println!("Acción calculada (S): {:.2}", action);
-    
-    // Validación: si S == 0, el sistema está en equilibrio (Verdad física)
-    if action.abs() < 1e-6 {
-        println!("Estado validado: Coherencia alcanzada.");
-    } else {
-        println!("Estado validado: Falacia o inestabilidad detectada (S != 0).");
+            // Network broadcast upon reaching the Poincaré limit
+            if self.tau >= 3 {
+                self.tau = 0;
+                return Some((resultado & 1) ^ 1);
+            }
+            None
+        }
     }
 }
